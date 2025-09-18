@@ -11,17 +11,23 @@ function App() {
   const [cart, setCart] = useState([]);
 
   const loadCart = async () => {
-    const response = await axios.get("/api/cart-items?expand=product");
-    setCart(response.data);
+    try {
+      const response = await axios.get("/api/cart-items?expand=product");
+      setCart(response.data);
+    } catch (error) {
+      console.error("Failed to load cart:", error.message);
+    }
   };
-  loadCart(() => {
-    fetchAppData();
+
+  // 👇 run loadCart only once when App mounts
+  useEffect(() => {
+    loadCart();
   }, []);
 
   return (
     <Routes>
       <Route index element={<HomePage cart={cart} loadCart={loadCart} />} />
-      <Route path="/checkout" element={<CheckoutPage cart={cart} />} />
+      <Route path="/checkout" element={<CheckoutPage cart={cart} loadCart={loadCart}/>} />
       <Route path="/orders" element={<OrdersPage cart={cart} />} />
       <Route path="/tracking" element={<TrackingPage />} />
     </Routes>
